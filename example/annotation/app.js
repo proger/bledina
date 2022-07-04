@@ -77,6 +77,15 @@ document.addEventListener('DOMContentLoaded', function() {
     wavesurfer.on('region-updated', saveRegions);
     wavesurfer.on('region-removed', saveRegions);
     wavesurfer.on('region-in', showNote);
+    wavesurfer.on('region-update-end', function(region, e) {
+        e.stopPropagation();
+        const name = prompt("що це за звук?");
+        console.log(region, region.id);
+        if (!name) {
+            wavesurfer.regions.list[region.id].remove();
+        }
+        region.data.note = name;
+    });
 
     wavesurfer.on('region-play', function(region) {
         region.once('out', function() {
