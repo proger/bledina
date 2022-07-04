@@ -3,6 +3,7 @@
  */
 var wavesurfer; // eslint-disable-line no-var
 
+
 /**
  * Init & load.
  */
@@ -10,37 +11,36 @@ document.addEventListener('DOMContentLoaded', function() {
     // Init wavesurfer
     wavesurfer = WaveSurfer.create({
         container: '#waveform',
-        height: 100,
-        pixelRatio: 1,
+        height: 300,
+        pixelRatio: 2,
         scrollParent: true,
         normalize: true,
-        minimap: true,
+        minimap: false,
         backend: 'MediaElement',
         plugins: [
             WaveSurfer.regions.create(),
-            WaveSurfer.minimap.create({
-                height: 30,
-                waveColor: '#ddd',
-                progressColor: '#999',
-                cursorColor: '#999'
-            }),
             WaveSurfer.timeline.create({
                 container: '#wave-timeline'
+            }),
+            WaveSurfer.spectrogram.create({
+                wavesurfer: wavesurfer,
+                container: "#wave-spectrogram",
+                labels: true,
+                height: 256
             })
         ]
     });
 
-    wavesurfer.util
-        .fetchFile({
-            responseType: 'json',
-            url: 'rashomon.json'
-        })
-        .on('success', function(data) {
-            wavesurfer.load(
-                'http://www.archive.org/download/mshortworks_001_1202_librivox/msw001_03_rashomon_akutagawa_mt_64kb.mp3',
-                data
-            );
-        });
+    document.getElementById('form').addEventListener('submit', function(event) {
+        let url = URL.createObjectURL(document.forms.form.audio.files[0]);
+        console.log(url);
+        wavesurfer.load(url);
+        event.preventDefault();
+    });
+
+    wavesurfer.load(
+        '/example/annotation/calibr2.mp3'
+    );
 
     /* Regions */
 
@@ -49,7 +49,9 @@ document.addEventListener('DOMContentLoaded', function() {
             color: randomColor(0.1)
         });
 
-        if (localStorage.regions) {
+        const wantLocalStorage = false;
+
+        if (wantLocalStorage && localStorage.regions) {
             loadRegions(JSON.parse(localStorage.regions));
         } else {
             // loadRegions(
